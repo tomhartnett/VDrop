@@ -5,6 +5,8 @@ I made this app because I frequently use ffmpeg to reduce the file size of video
 
 This is a work-in-progress. It's pretty "bare-bones" right now.
 
+Built with Xcode 16.2
+
 Known TODOs:
 - Assumes ffmpeg is installed on your system in `/opt/homebrew/bin/`. Won't work without it.
 - Hard-coded list of presets for downscaling are all iPhone aspect ratios. Dynamically resizing by some percentage and keeping the aspect ratio correct would be nicer maybe.
