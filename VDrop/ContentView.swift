@@ -40,7 +40,7 @@ struct ContentView: View {
             .background(isHover ? Color(nsColor: .white) : Color(nsColor: .windowBackgroundColor))
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.accentColor, lineWidth: 2)
+                    .stroke(Color.green, lineWidth: 2)
             )
             .onDrop(of: viewModel.supportedTypes, isTargeted: $isHover) { providers in
                 guard let provider = providers.first,

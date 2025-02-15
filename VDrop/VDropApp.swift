@@ -26,4 +26,8 @@ class MyAppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
             window.standardWindowButton(.zoomButton)?.isHidden = true
         }
     }
+
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool {
+        true
+    }
 }
