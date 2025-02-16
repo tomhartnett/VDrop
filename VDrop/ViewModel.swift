@@ -52,6 +52,8 @@ final class ViewModel {
             try process.run()
             process.waitUntilExit()
 
+            // TODO: implement proper error-handling
+            // Message errors back to UI; currently not shown.
             if process.terminationStatus == 0 {
                 print("FFmpeg command completed successfully.")
             } else {
@@ -139,11 +141,11 @@ extension ViewModel: DropDelegate {
             return
         }
 
-        Task {
-            let item = try await provider.loadItem(forTypeIdentifier: typeIdentifier)
-
+        provider.loadItem(forTypeIdentifier: typeIdentifier, options: nil) { [weak self] item, error in
             if let url = item as? URL {
-                await inspectFile(url)
+                Task {
+                    await self?.inspectFile(url)
+                }
             }
         }
     }
@@ -153,3 +155,7 @@ extension ViewModel: DropDelegate {
         previewDescription = nil
     }
 }
+
+// This silences `Capture of non-sendable type in @Sendable closure`.
+// Probably not a "real" solution long-term.
+extension ViewModel: @unchecked Sendable {}
