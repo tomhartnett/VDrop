@@ -38,26 +38,61 @@ struct ContentView: View {
             )
             .onDrop(of: viewModel.supportedTypes, delegate: viewModel)
 
-            VStack {
+            VStack(alignment: .leading) {
+                HStack(spacing: 16) {
+                    Toggle(isOn: $viewModel.isGIFEnabled) {
+                        Text("Animated GIF")
+                    }
+
+                    Spacer()
+
+                    Stepper(
+                        value: $viewModel.frameRate,
+                        in: 10...30,
+                        step: 1,
+                        label: {
+                            HStack(spacing: 4) {
+                                Text("fps:")
+                                    .foregroundStyle(.secondary)
+
+                                Text("\(viewModel.frameRate) ")
+                                    .foregroundStyle(viewModel.isGIFEnabled ? .primary : .secondary)
+                                    .monospaced()
+                            }
+                        },
+                        onEditingChanged: { _ in }
+                    )
+                    .disabled(!viewModel.isGIFEnabled)
+                }
+
                 HStack(spacing: 16) {
                     Toggle(isOn: $viewModel.isDownscaleEnabled) {
                         Text("Downscale video")
                     }
-                    
+
+                    Spacer()
+
                     Stepper(
                         value: $viewModel.scaleFactor,
                         in: 0.25...0.99,
                         step: 0.01,
                         label: {
                             Text(String(format: "%.0f%%", viewModel.scaleFactor * 100))
+                                .foregroundStyle(viewModel.isDownscaleEnabled ? .primary : .secondary)
+                                .monospaced()
                         },
-                        onEditingChanged: { _ in })
+                        onEditingChanged: { _ in }
+                    )
                     .disabled(!viewModel.isDownscaleEnabled)
                 }
-                
-                Text(viewModel.previewDescription ?? " ")
-                    .foregroundStyle(.secondary)
+
+                VStack(alignment: .center) {
+                    Text(viewModel.previewDescription ?? " ")
+                        .foregroundStyle(.secondary)
+                }
+                .frame(maxWidth: .infinity)
             }
+            .frame(width: 250)
         }
         .padding()
     }

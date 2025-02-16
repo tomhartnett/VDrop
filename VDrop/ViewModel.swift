@@ -20,6 +20,10 @@ final class ViewModel {
 
     var isDownscaleEnabled = false
 
+    var isGIFEnabled = false
+
+    var frameRate = 10
+
     var scaleFactor: Double = 0.5
 
     var previewDescription: String?
@@ -29,10 +33,23 @@ final class ViewModel {
         let outputFilePath = buildOutputFileURL(url).path(percentEncoded: false)
 
         let arguments: [String]
+        var filterArguments = ""
+
+        if isGIFEnabled {
+            filterArguments.append("fps=\(frameRate)")
+        }
+
         if isDownscaleEnabled {
-            // ffmpeg -i test.mov -vf "scale=iw*0.33:h=-2" test.mp4
-            let scale = "scale=iw*\(String(format: "%.2f", scaleFactor)):h=-2"
-            arguments = ["-i", inputFilePath, "-vf", scale, outputFilePath]
+            if !filterArguments.isEmpty {
+                filterArguments.append(",")
+            }
+
+            filterArguments.append("scale=iw*\(String(format: "%.2f", scaleFactor)):h=-2")
+        }
+
+        if !filterArguments.isEmpty {
+            // ffmpeg -i test.mov -vf "fps=10,scale=iw*0.33:h=-2" test.mp4
+            arguments = ["-i", inputFilePath, "-vf", filterArguments, outputFilePath]
         } else {
             // ffmpeg -i <input file> <output file>
             arguments = ["-i", inputFilePath, outputFilePath]
@@ -68,15 +85,16 @@ final class ViewModel {
 
     private func buildOutputFileURL(_ url: URL) -> URL {
         let filename = url.deletingPathExtension().lastPathComponent
+        let fileExtension = isGIFEnabled ? "gif" : "mp4"
 
         var candidateNewFilename = url.deletingLastPathComponent()
-            .appendingPathComponent("\(filename).mp4")
+            .appendingPathComponent("\(filename).\(fileExtension)")
 
         var deduplicationNumber = 1
         while FileManager.default.fileExists(atPath: candidateNewFilename.path(percentEncoded: false)) {
             candidateNewFilename = url
                 .deletingLastPathComponent()
-                .appendingPathComponent("\(filename) \(deduplicationNumber).mp4")
+                .appendingPathComponent("\(filename) \(deduplicationNumber).\(fileExtension)")
 
             deduplicationNumber += 1
         }
