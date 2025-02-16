@@ -5,12 +5,16 @@
 //  Created by Tom Hartnett on 2/15/25.
 //
 
+import AVFoundation
 import Foundation
 import UniformTypeIdentifiers
+import SwiftUI
 
 @Observable
 final class ViewModel {
     let supportedTypes: [UTType] = [.quickTimeMovie, .mpeg4Movie]
+
+    var isHover = false
 
     var isWorking = false
 
@@ -18,9 +22,11 @@ final class ViewModel {
 
     var scaleFactor: Double = 0.5
 
+    var previewDescription: String?
+
     func processFile(_ url: URL) {
         let inputFilePath = url.path(percentEncoded: false)
-        let outputFilePath = buildOutputFilePath(url)
+        let outputFilePath = buildOutputFileURL(url).path(percentEncoded: false)
 
         let arguments: [String]
         if isDownscaleEnabled {
@@ -58,23 +64,92 @@ final class ViewModel {
         isWorking = false
     }
 
-    private func buildOutputFilePath(_ url: URL) -> String {
+    private func buildOutputFileURL(_ url: URL) -> URL {
         let filename = url.deletingPathExtension().lastPathComponent
 
         var candidateNewFilename = url.deletingLastPathComponent()
             .appendingPathComponent("\(filename).mp4")
-            .path(percentEncoded: false)
 
         var deduplicationNumber = 1
-        while FileManager.default.fileExists(atPath: candidateNewFilename) {
+        while FileManager.default.fileExists(atPath: candidateNewFilename.path(percentEncoded: false)) {
             candidateNewFilename = url
                 .deletingLastPathComponent()
                 .appendingPathComponent("\(filename) \(deduplicationNumber).mp4")
-                .path(percentEncoded: false)
 
             deduplicationNumber += 1
         }
 
         return candidateNewFilename
+    }
+
+    private func inspectFile(_ url: URL) async {
+        let asset = AVURLAsset(url: url)
+
+        let tracks = try? await asset.loadTracks(withMediaType: .video)
+
+        guard let track = tracks?.first else {
+            return
+        }
+
+        let properties: (CGSize, CGAffineTransform)? = try? await track.load(.naturalSize, .preferredTransform)
+
+        if let size = properties?.0 {
+
+            let filename = buildOutputFileURL(url).lastPathComponent
+            let width: String
+            let height: String
+            if isDownscaleEnabled {
+                width = String(format: "%.0f", size.width * scaleFactor)
+                height = String(format: "%.0f", size.height * scaleFactor)
+            } else {
+                width = String(format: "%.0f", size.width)
+                height = String(format: "%.0f", size.height)
+            }
+
+            DispatchQueue.main.async { [weak self] in
+                self?.previewDescription = "\(filename) - \(width) × \(height)"
+            }
+        }
+    }
+}
+
+extension ViewModel: DropDelegate {
+    func performDrop(info: DropInfo) -> Bool {
+        isHover = false
+        previewDescription = nil
+
+        guard let provider = info.itemProviders(for: supportedTypes).first,
+              let typeIdentifier = provider.registeredTypeIdentifiers.first else {
+            return false
+        }
+
+        provider.loadItem(forTypeIdentifier: typeIdentifier) { [weak self] item, error in
+            if let url = item as? URL {
+                self?.processFile(url)
+            }
+        }
+        return true
+    }
+
+    func dropEntered(info: DropInfo) {
+        isHover = true
+
+        guard let provider = info.itemProviders(for: supportedTypes).first,
+              let typeIdentifier = provider.registeredTypeIdentifiers.first else {
+            return
+        }
+
+        Task {
+            let item = try await provider.loadItem(forTypeIdentifier: typeIdentifier)
+
+            if let url = item as? URL {
+                await inspectFile(url)
+            }
+        }
+    }
+
+    func dropExited(info: DropInfo) {
+        isHover = false
+        previewDescription = nil
     }
 }

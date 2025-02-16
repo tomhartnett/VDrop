@@ -9,8 +9,6 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct ContentView: View {
-    @State private var isHover = false
-
     @State private var viewModel = ViewModel()
 
     var body: some View {
@@ -24,49 +22,41 @@ struct ContentView: View {
                 } else {
                     Image(systemName: "document.badge.plus")
                         .font(.largeTitle)
-                        .foregroundStyle(isHover ? .primary : .secondary)
+                        .foregroundStyle(viewModel.isHover ? .primary : .secondary)
 
                     Text("Drop file here")
                         .font(.title2)
-                        .foregroundStyle(isHover ? .primary : .secondary)
+                        .foregroundStyle(viewModel.isHover ? .primary : .secondary)
                 }
             }
             .frame(width: 250, height: 125)
             .cornerRadius(12)
             .overlay(
                 RoundedRectangle(cornerRadius: 12)
-                    .stroke(Color.green.opacity(isHover || viewModel.isWorking ? 1 : 0.5),
-                            lineWidth: isHover ? 4 : 2)
+                    .stroke(Color.green.opacity(viewModel.isHover || viewModel.isWorking ? 1 : 0.5),
+                            lineWidth: viewModel.isHover ? 4 : 2)
             )
-            .onDrop(of: viewModel.supportedTypes, isTargeted: $isHover) { providers in
-                guard let provider = providers.first,
-                      let typeIdentifier = provider.registeredTypeIdentifiers.first else {
-                    return false
-                }
+            .onDrop(of: viewModel.supportedTypes, delegate: viewModel)
 
-                provider.loadItem(forTypeIdentifier: typeIdentifier, options: nil) { item, error in
-                    if let url = item as? URL {
-                        viewModel.processFile(url)
+            VStack {
+                HStack(spacing: 16) {
+                    Toggle(isOn: $viewModel.isDownscaleEnabled) {
+                        Text("Downscale video")
                     }
+                    
+                    Stepper(
+                        value: $viewModel.scaleFactor,
+                        in: 0.25...0.99,
+                        step: 0.01,
+                        label: {
+                            Text(String(format: "%.0f%%", viewModel.scaleFactor * 100))
+                        },
+                        onEditingChanged: { _ in })
+                    .disabled(!viewModel.isDownscaleEnabled)
                 }
-
-                return true
-            }
-
-            HStack(spacing: 16) {
-                Toggle(isOn: $viewModel.isDownscaleEnabled) {
-                    Text("Downscale video")
-                }
-
-                Stepper(
-                    value: $viewModel.scaleFactor,
-                    in: 0.25...0.99,
-                    step: 0.01,
-                    label: {
-                        Text(String(format: "%.0f%%", viewModel.scaleFactor * 100))
-                    },
-                    onEditingChanged: { _ in })
-                .disabled(!viewModel.isDownscaleEnabled)
+                
+                Text(viewModel.previewDescription ?? " ")
+                    .foregroundStyle(.secondary)
             }
         }
         .padding()

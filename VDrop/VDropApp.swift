@@ -9,7 +9,7 @@ import SwiftUI
 
 @main
 struct VDropApp: App {
-    @NSApplicationDelegateAdaptor private var appDelegate: MyAppDelegate
+    @NSApplicationDelegateAdaptor private var appDelegate: VDropAppDelegate
 
     var body: some Scene {
         WindowGroup {
@@ -19,7 +19,7 @@ struct VDropApp: App {
     }
 }
 
-class MyAppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
+class VDropAppDelegate: NSObject, NSApplicationDelegate, ObservableObject {
     func applicationWillBecomeActive(_ notification: Notification) {
         if let application = notification.object as? NSApplication,
            let window = application.windows.first {
