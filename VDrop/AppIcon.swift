@@ -16,7 +16,7 @@ struct AppIcon: View {
             Image(.customFilmBadgeArrowDown)
                 .font(.system(size: 500))
                 .symbolRenderingMode(.palette)
-                .offset(x: 0, y: 50)
+                .offset(x: 0, y: 54)
         }
         .frame(width: 1024, height: 1024)
         .border(.black)
