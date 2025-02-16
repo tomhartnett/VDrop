@@ -44,11 +44,13 @@ final class ViewModel {
                 filterArguments.append(",")
             }
 
-            filterArguments.append("scale=iw*\(String(format: "%.2f", scaleFactor)):h=-2")
+            // scale=trunc(iw*0.33/2)*2:trunc(ih*0.33/2)*2
+            let scaleFactorString = String(format: "%.2f", scaleFactor)
+            filterArguments.append("scale=trunc(iw*\(scaleFactorString)/2)*2:trunc(ih*\(scaleFactorString)/2)*2")
         }
 
         if !filterArguments.isEmpty {
-            // ffmpeg -i test.mov -vf "fps=10,scale=iw*0.33:h=-2" test.mp4
+            // ffmpeg -i test.mov -vf "fps=10,scale=trunc(iw*0.33/2)*2:trunc(ih*0.33/2)*2" test.mp4
             arguments = ["-i", inputFilePath, "-vf", filterArguments, outputFilePath]
         } else {
             // ffmpeg -i <input file> <output file>
