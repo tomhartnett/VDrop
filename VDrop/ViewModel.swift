@@ -24,12 +24,11 @@ final class ViewModel {
 
         let arguments: [String]
         if isDownscaleEnabled {
-            // ffmpeg -i <input file> -filter:v scale=402:874 -c:a copy <output file>
             // ffmpeg -i test.mov -vf "scale=iw*0.33:h=-2" test.mp4
             let scale = "scale=iw*\(String(format: "%.2f", scaleFactor)):h=-2"
             arguments = ["-i", inputFilePath, "-vf", scale, outputFilePath]
         } else {
-            // ffmpeg -i <input file> -strict -2 <output file>
+            // ffmpeg -i <input file> <output file>
             arguments = ["-i", inputFilePath, outputFilePath]
         }
 
@@ -60,19 +59,22 @@ final class ViewModel {
     }
 
     private func buildOutputFilePath(_ url: URL) -> String {
-        let filePath = url.path(percentEncoded: false)
-        let filename = url.lastPathComponent
+        let filename = url.deletingPathExtension().lastPathComponent
 
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM-dd 'at' h.mm.ss a"
-        var newFilename = "video \(formatter.string(from: Date()))"
+        var candidateNewFilename = url.deletingLastPathComponent()
+            .appendingPathComponent("\(filename).mp4")
+            .path(percentEncoded: false)
 
-        if isDownscaleEnabled {
-            newFilename.append(" - downscaled")
+        var deduplicationNumber = 1
+        while FileManager.default.fileExists(atPath: candidateNewFilename) {
+            candidateNewFilename = url
+                .deletingLastPathComponent()
+                .appendingPathComponent("\(filename) \(deduplicationNumber).mp4")
+                .path(percentEncoded: false)
+
+            deduplicationNumber += 1
         }
 
-        newFilename.append(".mp4")
-
-        return filePath.replacing(filename, with: newFilename)
+        return candidateNewFilename
     }
 }
