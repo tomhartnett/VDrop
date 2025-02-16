@@ -9,10 +9,6 @@ import SwiftUI
 import UniformTypeIdentifiers
 
 struct ContentView: View {
-    @State private var isDownscaleEnabled = false
-
-    @State private var selectedPreset: DownscalePreset = .iPhone16Pro
-
     @State private var isHover = false
 
     @State private var viewModel = ViewModel()
@@ -50,25 +46,27 @@ struct ContentView: View {
 
                 provider.loadItem(forTypeIdentifier: typeIdentifier, options: nil) { item, error in
                     if let url = item as? URL {
-                        viewModel.processFile(url, downscalePreset: isDownscaleEnabled ? selectedPreset : nil)
+                        viewModel.processFile(url)
                     }
                 }
 
                 return true
             }
 
-            VStack(alignment: .leading, spacing: 16) {
-                Toggle(isOn: $isDownscaleEnabled) {
+            HStack(spacing: 16) {
+                Toggle(isOn: $viewModel.isDownscaleEnabled) {
                     Text("Downscale video")
                 }
 
-                Picker(selection: $selectedPreset, content: {
-                    ForEach(DownscalePreset.devicePresets) { preset in
-                        Text(preset.name).tag(preset)
-                    }
-                }, label: { EmptyView() })
-                .frame(width: 250)
-                .disabled(!isDownscaleEnabled)
+                Stepper(
+                    value: $viewModel.scaleFactor,
+                    in: 0.25...0.99,
+                    step: 0.01,
+                    label: {
+                        Text(String(format: "%.0f%%", viewModel.scaleFactor * 100))
+                    },
+                    onEditingChanged: { _ in })
+                .disabled(!viewModel.isDownscaleEnabled)
             }
         }
         .padding()
