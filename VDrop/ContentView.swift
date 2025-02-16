@@ -63,7 +63,6 @@ struct ContentView: View {
                 }
 
                 Picker("", selection: $selectedPreset) {
-                    Text(selectedPreset.name).tag(DownscalePreset.iPhone16Pro)
                     ForEach(DownscalePreset.devicePresets) { preset in
                         Text(preset.name).tag(preset)
                     }
