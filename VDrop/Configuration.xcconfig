@@ -1,0 +1,11 @@
+//
+//  Configuration.xcconfig
+//  VDrop
+//
+//  Created by Tom Hartnett on 2/17/25.
+//
+
+// Configuration settings file format documentation can be found at:
+// https://help.apple.com/xcode/#/dev745c5c974
+
+MACOSX_DEPLOYMENT_TARGET = 14.2

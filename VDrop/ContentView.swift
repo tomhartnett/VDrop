@@ -20,9 +20,15 @@ struct ContentView: View {
                         .controlSize(.extraLarge)
 
                 } else {
-                    Image(systemName: "document.badge.plus")
-                        .font(.largeTitle)
-                        .foregroundStyle(viewModel.isHover ? .primary : .secondary)
+                    if #available(macOS 15.0, *) {
+                        Image(systemName: "document.badge.plus")
+                            .font(.largeTitle)
+                            .foregroundStyle(viewModel.isHover ? .primary : .secondary)
+                    } else {
+                        Image(systemName: "document")
+                            .font(.largeTitle)
+                            .foregroundStyle(viewModel.isHover ? .primary : .secondary)
+                    }
 
                     Text("Drop file here")
                         .font(.title2)
