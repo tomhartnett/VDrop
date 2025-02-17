@@ -137,6 +137,8 @@ final class ViewModel {
 
 extension ViewModel: DropDelegate {
     func performDrop(info: DropInfo) -> Bool {
+        guard !isWorking else { return false }
+
         isHover = false
         previewDescription = nil
 
@@ -154,6 +156,8 @@ extension ViewModel: DropDelegate {
     }
 
     func dropEntered(info: DropInfo) {
+        guard !isWorking else { return }
+
         isHover = true
 
         guard let provider = info.itemProviders(for: supportedTypes).first,
@@ -171,8 +175,14 @@ extension ViewModel: DropDelegate {
     }
 
     func dropExited(info: DropInfo) {
+        guard !isWorking else { return }
+
         isHover = false
         previewDescription = nil
+    }
+
+    func validateDrop(info: DropInfo) -> Bool {
+        !isWorking
     }
 }
 
