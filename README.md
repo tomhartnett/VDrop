@@ -3,10 +3,15 @@ This macOS app is a "wrapper" for FFmpeg. It lets you drag and drop a video file
 
 I made this app because I frequently use FFmpeg to reduce the file size of videos I have created in the iOS simulator. I reduce the file size before sharing with others in Slack/Teams/Jira etc. I also sometimes downscale the video dimensions so that it doesn't appear gigantic in my PR descriptions.
 
-Built with Xcode 16.2
+## Building the project
+- Requires Xcode 16.2 on macOS Sonoma or later.
+- Update `Configuration.xcconfig`
+  - Replace `YOUR_TEAM_ID` with your Team ID from Apple Developer Portal.
+  - Update `PRODUCT_BUNDLE_IDENTIFIER` with desired Bundle ID.
 
-Known TODOs:
+## Known TODOs
 - Assumes FFmpeg is installed on your system in `/opt/homebrew/bin/`. Won't work without it.
 - FFmpeg could fail. There is currently no error messaging.
 
+## Demo Video
 ![Demo video](demo.gif)
