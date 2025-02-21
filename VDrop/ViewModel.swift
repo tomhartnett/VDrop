@@ -24,15 +24,13 @@ final class ViewModel {
 
     var frameRate = 10
 
-    var scaleFactor: Double = 0.5
-
     var previewDescription: String?
 
-    func processFile(_ url: URL) {
-        let inputFilePath = url.path(percentEncoded: false)
-        let outputFilePath = buildOutputFileURL(url).path(percentEncoded: false)
+    var downscaleWidth: Int = 400
 
-        let arguments: [String]
+    func processFile(_ url: URL) async {
+        guard let size = await fileSize(url) else { return }
+
         var filterArguments = ""
 
         if isGIFEnabled {
@@ -44,16 +42,22 @@ final class ViewModel {
                 filterArguments.append(",")
             }
 
-            // scale=trunc(iw*0.33/2)*2:trunc(ih*0.33/2)*2
+            let scaleFactor = CGFloat(downscaleWidth) / size.width
             let scaleFactorString = String(format: "%.2f", scaleFactor)
-            filterArguments.append("scale=trunc(iw*\(scaleFactorString)/2)*2:trunc(ih*\(scaleFactorString)/2)*2")
+
+            // scale=400:trunc(ih*0.33/2)*2
+            filterArguments.append("scale=\(downscaleWidth):trunc(ih*\(scaleFactorString)/2)*2")
         }
 
+        let inputFilePath = url.path(percentEncoded: false)
+        let outputFilePath = buildOutputFileURL(url).path(percentEncoded: false)
+
+        let arguments: [String]
         if !filterArguments.isEmpty {
-            // ffmpeg -i test.mov -vf "fps=10,scale=trunc(iw*0.33/2)*2:trunc(ih*0.33/2)*2" test.mp4
+            // ffmpeg -i test.mov -vf "fps=10,scale=400:trunc(ih*0.33/2)*2" test.gif
             arguments = ["-i", inputFilePath, "-vf", filterArguments, outputFilePath]
         } else {
-            // ffmpeg -i <input file> <output file>
+            // ffmpeg -i test.mov test.mp4
             arguments = ["-i", inputFilePath, outputFilePath]
         }
 
@@ -105,33 +109,37 @@ final class ViewModel {
     }
 
     private func inspectFile(_ url: URL) async {
+        guard let size = await fileSize(url) else {
+            return
+        }
+
+        let width: String
+        let height: String
+        if isDownscaleEnabled {
+            let scaleFactor = CGFloat(downscaleWidth) / size.width
+            width = "\(downscaleWidth)"
+            height = String(format: "%.0f", size.height * scaleFactor)
+        } else {
+            width = String(format: "%.0f", size.width)
+            height = String(format: "%.0f", size.height)
+        }
+
+        DispatchQueue.main.async { [weak self] in
+            self?.previewDescription = "\(width) × \(height)"
+        }
+    }
+
+    private func fileSize(_ url: URL) async -> CGSize? {
         let asset = AVURLAsset(url: url)
 
         let tracks = try? await asset.loadTracks(withMediaType: .video)
 
-        guard let track = tracks?.first else {
-            return
+        guard let track = tracks?.first,
+              let size: CGSize = try? await track.load(.naturalSize) else {
+            return nil
         }
 
-        let properties: (CGSize, CGAffineTransform)? = try? await track.load(.naturalSize, .preferredTransform)
-
-        if let size = properties?.0 {
-
-            let filename = buildOutputFileURL(url).lastPathComponent
-            let width: String
-            let height: String
-            if isDownscaleEnabled {
-                width = String(format: "%.0f", size.width * scaleFactor)
-                height = String(format: "%.0f", size.height * scaleFactor)
-            } else {
-                width = String(format: "%.0f", size.width)
-                height = String(format: "%.0f", size.height)
-            }
-
-            DispatchQueue.main.async { [weak self] in
-                self?.previewDescription = "\(filename) - \(width) × \(height)"
-            }
-        }
+        return size
     }
 }
 
@@ -149,7 +157,9 @@ extension ViewModel: DropDelegate {
 
         provider.loadItem(forTypeIdentifier: typeIdentifier) { [weak self] item, error in
             if let url = item as? URL {
-                self?.processFile(url)
+                Task {
+                    await self?.processFile(url)
+                }
             }
         }
         return true
