@@ -6,7 +6,15 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		E271D8662D6A12E6006DC897 /* Configuration-template.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = E271D85D2D6A12E6006DC897 /* Configuration-template.xcconfig */; };
+		E271D86E2D6A14E3006DC897 /* Configuration.xcconfig in Resources */ = {isa = PBXBuildFile; fileRef = E271D86D2D6A14E3006DC897 /* Configuration.xcconfig */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
+		E271D85D2D6A12E6006DC897 /* Configuration-template.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = "Configuration-template.xcconfig"; sourceTree = "<group>"; };
+		E271D86C2D6A1473006DC897 /* README.md */ = {isa = PBXFileReference; lastKnownFileType = net.daringfireball.markdown; path = README.md; sourceTree = "<group>"; };
+		E271D86D2D6A14E3006DC897 /* Configuration.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Configuration.xcconfig; sourceTree = "<group>"; };
 		E29441D12D5F7CB200B8A150 /* VDrop.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = VDrop.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -32,6 +40,9 @@
 		E29441C82D5F7CB200B8A150 = {
 			isa = PBXGroup;
 			children = (
+				E271D86C2D6A1473006DC897 /* README.md */,
+				E271D85D2D6A12E6006DC897 /* Configuration-template.xcconfig */,
+				E271D86D2D6A14E3006DC897 /* Configuration.xcconfig */,
 				E29441D32D5F7CB200B8A150 /* VDrop */,
 				E29441D22D5F7CB200B8A150 /* Products */,
 			);
@@ -109,6 +120,8 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E271D86E2D6A14E3006DC897 /* Configuration.xcconfig in Resources */,
+				E271D8662D6A12E6006DC897 /* Configuration-template.xcconfig in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -127,8 +140,7 @@
 /* Begin XCBuildConfiguration section */
 		E29441DE2D5F7CB200B8A150 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = E29441D32D5F7CB200B8A150 /* VDrop */;
-			baseConfigurationReferenceRelativePath = Configuration.xcconfig;
+			baseConfigurationReference = E271D86D2D6A14E3006DC897 /* Configuration.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -191,8 +203,7 @@
 		};
 		E29441DF2D5F7CB200B8A150 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = E29441D32D5F7CB200B8A150 /* VDrop */;
-			baseConfigurationReferenceRelativePath = Configuration.xcconfig;
+			baseConfigurationReference = E271D86D2D6A14E3006DC897 /* Configuration.xcconfig */;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -247,8 +258,7 @@
 		};
 		E29441E12D5F7CB200B8A150 /* Debug */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = E29441D32D5F7CB200B8A150 /* VDrop */;
-			baseConfigurationReferenceRelativePath = Configuration.xcconfig;
+			baseConfigurationReference = E271D86D2D6A14E3006DC897 /* Configuration.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -274,8 +284,7 @@
 		};
 		E29441E22D5F7CB200B8A150 /* Release */ = {
 			isa = XCBuildConfiguration;
-			baseConfigurationReferenceAnchor = E29441D32D5F7CB200B8A150 /* VDrop */;
-			baseConfigurationReferenceRelativePath = Configuration.xcconfig;
+			baseConfigurationReference = E271D86D2D6A14E3006DC897 /* Configuration.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
